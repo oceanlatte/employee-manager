@@ -16,3 +16,19 @@ VALUES
   ('Senior Engineer', 100000.80, '3'),
   ('Customer Service Rep', 10000.80, '4'),
   ('Customer Service Lead', 40000.80, '4');
+
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES
+  ('Fred', 'Sanchez', 2, null),
+  ('Ted', 'Gomez', 8, null),
+  ('Sabrina', 'Johnson', 1, null),
+  ('Harvey', 'Pickles', 2, 1),
+  ('Harry', 'Potter', 6, null),
+  ('Ash', 'Katchum', 3, 8),
+  ('Misty', 'Trainer', 3, 8),
+  ('Jessica', 'Day', 4, 4),
+  ('Nick', 'Miller', 7, null),
+  ('Schmidt', 'Schmidt', 8, null),
+  ('Coach', 'Friend', 1, 1),
+  ('Winston', 'Bishop', 2, 1),
+  ('Robby', 'Friend', 5, 5);
