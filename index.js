@@ -37,5 +37,20 @@ const start = () => {
 };
 
 
+// db query to display the DEPT NAME the role belongs to 
+db.query(`SELECT role.*, department.department_name
+FROM role
+LEFT JOIN department
+ON role.department_id = department.id;
+`, (err, rows) => {
+  if (err) {
+    console.log(err);
+  }
+  else {
+    console.log(rows);
+    return rows;
+  }
+});
 
-start();
+
+// start();
