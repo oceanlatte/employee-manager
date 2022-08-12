@@ -2,6 +2,8 @@ const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 
+// const { getAllDepartments, getAllEmployees } = require('./lib/Queries')
+
 const db = mysql.createConnection(
   {
     host: 'localhost',
@@ -24,33 +26,64 @@ const start = () => {
   .then(data => {
     console.log(data, "data chosen from inquirer");
     if (data) {
-      db.query(`SELECT * FROM department`, (err, row) => {
-        if (err) {
-          console.log(err);
-        }
-        else {
-          console.log(row);
-        }
-      })
+      getAllDepartments();
     }
   })
 };
 
+// get all departments
+const getAllDepartments = () => {
+  db.query(`SELECT * FROM department`, (err, row) => {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      console.log(row);
+    }
+  });
+}
+
+
 
 // db query to display the DEPT NAME the role belongs to 
-db.query(`SELECT role.*, department.department_name
-FROM role
-LEFT JOIN department
-ON role.department_id = department.id;
-`, (err, rows) => {
-  if (err) {
-    console.log(err);
-  }
-  else {
-    console.log(rows);
-    return rows;
-  }
-});
+const getAllRoles = () => {
+  const sql = `SELECT role.*, department.department_name
+  FROM role
+  LEFT JOIN department
+  ON role.department_id = department.id`;
+
+  db.query(sql, (err, rows) => {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      console.log(rows);
+      return rows;
+    }
+  });
+}
+
+// (X) departments | (X) salaries | () managers
+const getAllEmployees = () => {
+  const sql = `SELECT employee.*, role.title, department.department_name
+  FROM employee
+  INNER JOIN role ON employee.role_id = role.id
+  INNER JOIN department ON role.id = department.id`
+  
+  db.query(sql, (err, rows) => {
+    if (err) {
+      console.log(err)
+    }
+    else {
+      console.log(rows);
+    }
+  })
+} 
+
+getAllDepartments();
+getAllRoles();
+getAllEmployees();
+
 
 
 // start();
