@@ -7,22 +7,69 @@ const Role = require('./lib/Role');
 const Employee = require('./lib/Employee');
 const  { getAllDepartments, getAllEmployees, getAllRoles } = require('./utils/quieries');
 
+console.log(
+  `
+  ============================================
+   Welcome to the Employee Management System!
+  ============================================
+  `
+);
+
 const startMenu = () => {
   return inquirer.prompt([
     {
       type: 'list',
-      name: 'departments',
-      message: 'Which department would you like to select?',
-      choices: ['all', 'sales', 'customer service']
+      name: 'start',
+      message: 'What would you like to do today?',
+      choices: [
+        'View all departments',
+        'View all roles',
+        'View all employees',
+        'Add a department',
+        'Add a role',
+        'Add an employee',
+        'Update an employee',
+        'Quit'
+      ]
     }
   ])
   .then(data => {
-    console.log(data, "data chosen from inquirer");
-    if (data) {
-      getAllDepartments();
+    switch(data.start) {
+      case 'View all departments':
+        getAllDepartments();
+        break;
+      case 'View all roles':
+        getAllRoles();
+        break;
+      case 'View all employees':
+        getAllEmployees();
+        break;
+      case 'Add a department':
+        console.log('add department chosen');
+        break;
+      case 'Add a role':
+        console.log('add role chosen');
+        break;
+      case 'Add an employee':
+        console.log('add employee chosen');
+        break;
+      case 'Update an employee':
+        console.log('UPDATE employee chosen');
+        break;
+      case 'Quit':
+        console.log('add quit fuction');
+        break;
     }
   })
 };
+
+// CREATE SEPARATE FUNCTION for:
+// {
+//   type: 'list',
+//   name: 'departments',
+//   message: 'Which department would you like to select?',
+//   choices: ['all', 'sales', 'customer service']
+// }
 
 
 // -----ADD NEW: Dept, Role, Employee functions-----
@@ -56,4 +103,4 @@ employee.insertToEmployee();
 // newEmployee();
 
 
-// startMenu();
+startMenu();
