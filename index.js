@@ -2,8 +2,6 @@ const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 
-// const { getAllDepartments, getAllEmployees } = require('./lib/Queries')
-
 const db = mysql.createConnection(
   {
     host: 'localhost',
@@ -43,8 +41,6 @@ const getAllDepartments = () => {
   });
 }
 
-
-
 // db query to display the DEPT NAME the role belongs to 
 const getAllRoles = () => {
   const sql = `SELECT role.*, department.department_name
@@ -63,12 +59,18 @@ const getAllRoles = () => {
   });
 }
 
-// (X) departments | (X) salaries | () managers
+// (X) job titles | () departments | (X) salaries | () managers name
 const getAllEmployees = () => {
-  const sql = `SELECT employee.*, role.title, department.department_name
+  const sql = 
+  `SELECT 
+    employee.*, 
+    role.title, 
+    role.salary, 
+    department.department_name
   FROM employee
-  INNER JOIN role ON employee.role_id = role.id
-  INNER JOIN department ON role.id = department.id`
+  LEFT JOIN 
+    role ON employee.role_id = role.id AND role.salary
+  LEFT JOIN department ON role.id = department.id;`
   
   db.query(sql, (err, rows) => {
     if (err) {
@@ -80,8 +82,8 @@ const getAllEmployees = () => {
   })
 } 
 
-getAllDepartments();
-getAllRoles();
+// getAllDepartments();
+// getAllRoles();
 getAllEmployees();
 
 
