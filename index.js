@@ -2,10 +2,10 @@ const inquirer = require('inquirer');
 const cTable = require('console.table');
 const db = require('./db/connection');
 
-
 const Department = require('./lib/Department');
+const Role = require('./lib/Role');
 
-const start = () => {
+const startMenu = () => {
   return inquirer.prompt([
     {
       type: 'list',
@@ -24,12 +24,13 @@ const start = () => {
 
 // get all departments
 const getAllDepartments = () => {
-  db.query(`SELECT * FROM department`, (err, row) => {
+  db.query(`SELECT * FROM department`, (err, results) => {
     if (err) {
       console.log(err);
     }
     else {
-      console.table(row);
+      console.table(['ID', 'Name'], results);
+      console.log(results);
     }
   });
 }
@@ -73,7 +74,7 @@ const getAllEmployees = () => {
       console.table(rows);
     }
   })
-} 
+}; 
 
 // const newDepartment = () => {
 //   const dept = new Department ('NewDept');
@@ -81,11 +82,18 @@ const getAllEmployees = () => {
 //   getAllDepartments;
 // }
 
-getAllDepartments();
+const newRole = () => {
+  const role = new Role('Customer Service Rep II', 30000.00, 4);
+  role.insertToRole();
+  getAllRoles();
+}
+
+// getAllDepartments();
 // getAllRoles();
-// getAllEmployees();
+getAllEmployees();
 
 // newDepartment();
+newRole();
 
 
-// start();
+// startMenu();
