@@ -1,6 +1,5 @@
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-const db = require('./db/connection');
 
 const Department = require('./lib/Department');
 const Role = require('./lib/Role');
@@ -46,6 +45,7 @@ const startMenu = () => {
         break;
       case 'Add a department':
         console.log('add department chosen');
+        newDepartment();
         break;
       case 'Add a role':
         console.log('add role chosen');
@@ -75,9 +75,17 @@ const startMenu = () => {
 // -----ADD NEW: Dept, Role, Employee functions-----
 // NEED TO ADD PARAMETERS FROM INQUIRER QUESTIONS
 const newDepartment = () => {
-  const dept = new Department ('NewDept');
-  dept.insertToDb()
-  getAllDepartments;
+  return inquirer.prompt([
+    {
+      type: 'input',
+      name: 'dept',
+      message: 'What is the new department name?'
+    }
+  ])
+  .then(data => {
+    const dept = new Department (data.dept);
+    dept.insertToDepartment();
+  });
 }
 
 const newRole = () => {
@@ -88,8 +96,7 @@ const newRole = () => {
 
 const newEmployee = () => {
   const employee = new Employee('Ron', 'Weasley', 5, 8);
-const db = require('../db/connection');
-employee.insertToEmployee();
+  employee.insertToEmployee();
   // employee.updateEmployee(6, 10);
   getAllEmployees();
 }
