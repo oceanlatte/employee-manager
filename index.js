@@ -5,6 +5,7 @@ const db = require('./db/connection');
 const Department = require('./lib/Department');
 const Role = require('./lib/Role');
 const Employee = require('./lib/Employee');
+const  { getAllDepartments, getAllEmployees, getAllRoles } = require('./utils/quieries');
 
 const startMenu = () => {
   return inquirer.prompt([
@@ -23,59 +24,6 @@ const startMenu = () => {
   })
 };
 
-// get all departments
-const getAllDepartments = () => {
-  db.query(`SELECT * FROM department`, (err, results) => {
-    if (err) {
-      console.log(err);
-    }
-    else {
-      console.table(['ID', 'Name'], results);
-      console.log(results);
-    }
-  });
-}
-
-// db query to display the DEPT NAME the role belongs to 
-const getAllRoles = () => {
-  const sql = `SELECT role.*, department.department_name
-  FROM role
-  LEFT JOIN department
-  ON role.department_id = department.id`;
-
-  db.query(sql, (err, rows) => {
-    if (err) {
-      console.log(err);
-    }
-    else {
-      console.table(rows);
-      return rows;
-    }
-  });
-}
-
-// (X) job titles | (X) departments | (X) salaries | !! () managers name
-const getAllEmployees = () => {
-  const sql = 
-  `SELECT 
-    employee.*, 
-    role.title, 
-    role.salary, 
-    department.department_name
-  FROM employee
-  LEFT JOIN 
-    role ON employee.role_id = role.id AND role.salary
-  LEFT JOIN department ON role.department_id = department.id;`
-  
-  db.query(sql, (err, rows) => {
-    if (err) {
-      console.log(err)
-    }
-    else {
-      console.table(rows);
-    }
-  })
-}; 
 
 // -----ADD NEW: Dept, Role, Employee functions-----
 // NEED TO ADD PARAMETERS FROM INQUIRER QUESTIONS
