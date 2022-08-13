@@ -4,6 +4,7 @@ const db = require('./db/connection');
 
 const Department = require('./lib/Department');
 const Role = require('./lib/Role');
+const Employee = require('./lib/Employee');
 
 const startMenu = () => {
   return inquirer.prompt([
@@ -53,7 +54,7 @@ const getAllRoles = () => {
   });
 }
 
-// (X) job titles | (X) departments | (X) salaries | () managers name
+// (X) job titles | (X) departments | (X) salaries | !! () managers name
 const getAllEmployees = () => {
   const sql = 
   `SELECT 
@@ -76,11 +77,13 @@ const getAllEmployees = () => {
   })
 }; 
 
-// const newDepartment = () => {
-//   const dept = new Department ('NewDept');
-//   dept.insertToDb()
-//   getAllDepartments;
-// }
+// -----ADD NEW: Dept, Role, Employee functions-----
+// NEED TO ADD PARAMETERS FROM INQUIRER QUESTIONS
+const newDepartment = () => {
+  const dept = new Department ('NewDept');
+  dept.insertToDb()
+  getAllDepartments;
+}
 
 const newRole = () => {
   const role = new Role('Customer Service Rep II', 30000.00, 4);
@@ -88,12 +91,21 @@ const newRole = () => {
   getAllRoles();
 }
 
+const newEmployee = () => {
+  const employee = new Employee('Ron', 'Weasley', 5, 8);
+const db = require('../db/connection');
+employee.insertToEmployee();
+  // employee.updateEmployee(6, 10);
+  getAllEmployees();
+}
+
 // getAllDepartments();
 // getAllRoles();
-getAllEmployees();
+// getAllEmployees();
 
 // newDepartment();
-newRole();
+// newRole();
+// newEmployee();
 
 
 // startMenu();
