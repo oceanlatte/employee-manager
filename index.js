@@ -6,7 +6,8 @@ const db = mysql.createConnection(
   {
     host: 'localhost',
     user: 'root',
-    password: 'password',
+    // unique password, not used for anything else
+    password: 'h0tch33tos',
     database: 'directory'
   },
   console.log('Connected to employee database.'),
@@ -36,7 +37,7 @@ const getAllDepartments = () => {
       console.log(err);
     }
     else {
-      console.log(row);
+      console.table(row);
     }
   });
 }
@@ -53,13 +54,13 @@ const getAllRoles = () => {
       console.log(err);
     }
     else {
-      console.log(rows);
+      console.table(rows);
       return rows;
     }
   });
 }
 
-// (X) job titles | () departments | (X) salaries | () managers name
+// (X) job titles | (X) departments | (X) salaries | () managers name
 const getAllEmployees = () => {
   const sql = 
   `SELECT 
@@ -70,14 +71,14 @@ const getAllEmployees = () => {
   FROM employee
   LEFT JOIN 
     role ON employee.role_id = role.id AND role.salary
-  LEFT JOIN department ON role.id = department.id;`
+  LEFT JOIN department ON role.department_id = department.id;`
   
   db.query(sql, (err, rows) => {
     if (err) {
       console.log(err)
     }
     else {
-      console.log(rows);
+      console.table(rows);
     }
   })
 } 
