@@ -1,17 +1,9 @@
-const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
+const db = require('./db/connection');
 
-const db = mysql.createConnection(
-  {
-    host: 'localhost',
-    user: 'root',
-    // unique password, not used for anything else
-    password: 'h0tch33tos',
-    database: 'directory'
-  },
-  console.log('Connected to employee database.'),
-);
+
+const Department = require('./lib/Department');
 
 const start = () => {
   return inquirer.prompt([
@@ -83,10 +75,17 @@ const getAllEmployees = () => {
   })
 } 
 
-// getAllDepartments();
-// getAllRoles();
-getAllEmployees();
+// const newDepartment = () => {
+//   const dept = new Department ('NewDept');
+//   dept.insertToDb()
+//   getAllDepartments;
+// }
 
+getAllDepartments();
+// getAllRoles();
+// getAllEmployees();
+
+// newDepartment();
 
 
 // start();
