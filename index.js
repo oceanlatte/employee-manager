@@ -5,7 +5,7 @@ const db = require('./db/connection');
 const Department = require('./lib/Department');
 const Role = require('./lib/Role');
 const Employee = require('./lib/Employee');
-const  { getAllDepartments, getAllEmployees, getAllRoles } = require('./utils/queries');
+const { getAllDepartments, getAllEmployees, getAllRoles } = require('./utils/queries');
 
 console.log(
   `
@@ -54,7 +54,7 @@ const startMenu = () => {
         newEmployee();
         break;
       case 'Update an employee':
-        console.log('UPDATE employee chosen');
+        getEmployeeToUpdate();
         break;
       case 'Quit':
         console.log('add quit fuction');
@@ -63,16 +63,77 @@ const startMenu = () => {
   });
 };
 
-// CREATE SEPARATE FUNCTION for:
-// {
-//   type: 'list',
-//   name: 'departments',
-//   message: 'Which department would you like to select?',
-//   choices: ['all', 'sales', 'customer service']
-// }
+
+// --------- Check Functions to find Indexes -------------
+
+// find department index that matches selected role
+const checkDepartment = (name, salary, dept) => {
+  const query = 
+  `SELECT * FROM department WHERE department_name = '${dept}'`;
+
+  db.query({sql: query, rowsAsArray: true}, (err, results) => {
+    if (err) {
+      console.log(err)
+    }
+    else {
+      const deptIdArr = results.flatMap(index => index);
+      if (deptIdArr[0]) {
+        const role = new Role(name, salary, deptIdArr[0]);
+        role.insertToRole();
+        // startMenu();
+      }
+    }
+  });
+}
+
+const checkRole = (first, last, title, manager, fullName) => {
+  const query = 
+  `SELECT * FROM role WHERE title = '${title}'`;
+
+  db.query({sql: query, rowsAsArray: true}, (err, results) => {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      const rolesArr = results.flatMap(i => i);
+
+      if (manager !== null) {
+        const employee = new Employee(first, last, rolesArr[0], manager);
+        employee.insertToEmployee();
+        // startMenu();
+      }
+      else {
+        console.log(fullName, rolesArr[0], 'else statment info')
+        checkEmployeeId(fullName, rolesArr[0]);
+      }
+    }
+  });
+};
 
 
-// -----ADD NEW: Dept, Role, Employee functions-----
+const checkEmployeeId = (name, role) => {
+  const query = 
+  `SELECT * FROM employee
+  WHERE CONCAT(first_name, ' ', last_name) = '${name}'`;
+
+  db.query({sql: query, rowsAsArray: true}, (err, results) => {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      const selectedEmployeeArr = results.flatMap(i => i);
+      console.log(selectedEmployeeArr, 'employee array from checkEmployeeId');
+
+      if (selectedEmployeeArr[0]) {
+        Employee.updateEmployee(role, selectedEmployeeArr[0], name);
+        // startMenu();
+      }
+    }
+  });
+}
+
+
+// -------ADD NEW: Dept, Role, Employee functions-------
 // NEED TO ADD PARAMETERS FROM INQUIRER QUESTIONS
 const newDepartment = () => {
   return inquirer.prompt([
@@ -89,46 +150,6 @@ const newDepartment = () => {
   });
 };
 
-// find department index that matches selected role
-const checkDepartment = (name, salary, dept) => {
-  const query = 
-  `SELECT * FROM department WHERE department_name = '${dept}'`;
-
-  db.query({sql: query, rowsAsArray: true}, (err, results) => {
-    if (err) {
-      console.log(err)
-    }
-    else {
-      const flattenedDeptId = results.flatMap(index => index);
-      if (flattenedDeptId[0]) {
-        const role = new Role(name, salary, flattenedDeptId[0]);
-        role.insertToRole();
-        // startMenu();
-      }
-    }
-  });
-}
-
-const checkRole = (first, last, title, manager) => {
-  const query = 
-  `SELECT * FROM role WHERE title = '${title}'`;
-
-  db.query({sql: query, rowsAsArray: true}, (err, results) => {
-    if (err) {
-      console.log(err);
-    }
-    else {
-      const flattenedRoles = results.flatMap(i => i);
-      console.log(flattenedRoles, 'flattened roles row');
-      if (flattenedRoles[0]) {
-        const employee = new Employee(first, last, flattenedRoles[0], manager);
-        employee.insertToEmployee();
-        // startMenu();
-      }
-    }
-  });
-};
-
 
 const newRole = () => {
   // get list of departments for choosing which dept role belongs to
@@ -137,7 +158,7 @@ const newRole = () => {
       console.log(err);
     }
     else {
-      const flattenedArr = results.flatMap(index => index);
+      const deptArr = results.flatMap(index => index);
       
       inquirer.prompt([
         {
@@ -154,7 +175,7 @@ const newRole = () => {
           type: 'list',
           name: 'roleId',
           message: 'What department does this role belong to?',
-          choices: flattenedArr
+          choices: deptArr
         }
       ])
       .then(data => {
@@ -209,13 +230,67 @@ const newEmployee = () => {
   });
 };
 
+const getEmployeeToUpdate = () => {
+  const query = 
+  `SELECT CONCAT(first_name, ' ', last_name) AS full_name
+  FROM employee`; 
+
+  db.query({sql: query, rowsAsArray: true}, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      const employeeArr = result.flatMap(i => i);
+
+      inquirer.prompt([
+          {
+            type: 'list',
+            name: 'employee',
+            message: 'Which employee would you like to update?',
+            choices: employeeArr
+          }
+      ])
+      .then(data => {
+        newRoleForUpdate(data.employee);
+      });
+    }
+  });
+};
+
+const newRoleForUpdate = employee => {
+  const query = `SELECT title FROM role`;
+
+  db.query({sql: query, rowsAsArray: true}, (err, results) => {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      const rolesArr = results.flatMap(i => i);
+
+      inquirer.prompt([
+        {
+          type: 'list',
+          name: 'newRoleName',
+          message: 'What is their new role?',
+          choices: rolesArr
+        }
+      ])
+      .then(data => {
+        checkRole(null, null, data.newRoleName, null, employee);
+      })
+    }
+  });
+};
+
+
 // getAllDepartments();
 // getAllRoles();
-getAllEmployees();
+// getAllEmployees();
 
 // newDepartment();
 // newRole();
 // newEmployee();
+getEmployeeToUpdate();
 
 
 // startMenu();
