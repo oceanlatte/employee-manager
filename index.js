@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const cTable = require('console.table');
+const db = require('./db/connection');
 
 const Department = require('./lib/Department');
 const Role = require('./lib/Role');
@@ -44,11 +45,10 @@ const startMenu = () => {
         getAllEmployees();
         break;
       case 'Add a department':
-        console.log('add department chosen');
         newDepartment();
         break;
       case 'Add a role':
-        console.log('add role chosen');
+        newRole();
         break;
       case 'Add an employee':
         console.log('add employee chosen');
@@ -86,13 +86,66 @@ const newDepartment = () => {
     const dept = new Department (data.dept);
     dept.insertToDepartment();
   });
+};
+
+// find department index that matches selected role
+const checkDepartment = (name, salary, dept) => {
+  const query = 
+  `SELECT * FROM department WHERE department_name = '${dept}'`;
+
+  db.query({sql: query, rowsAsArray: true}, (err, results) => {
+    if (err) {
+      console.log(err)
+    }
+    else {
+      const flattenedDeptId = results.flatMap(index => index);
+      if (flattenedDeptId[0]) {
+        const role = new Role(name, salary, flattenedDeptId[0]);
+        role.insertToRole();
+        startMenu();
+      }
+    }
+  })
 }
 
+
 const newRole = () => {
-  const role = new Role('Customer Service Rep II', 30000.00, 4);
-  role.insertToRole();
-  getAllRoles();
-}
+  // get list of departments for choosing which dept role belongs to
+  db.query({sql: `SELECT department_name FROM department`, rowsAsArray: true}, (err, results) => {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      const flattenedArr = results.flatMap(index => index);
+      
+      inquirer.prompt([
+        {
+          type: 'input',
+          name: 'roleName',
+          message: 'What is the name of the new role?'
+        },
+        {
+          type: 'input',
+          name: 'salary',
+          message: 'What is the salary for this role?'
+        },
+        {
+          type: 'list',
+          name: 'roleId',
+          message: 'What department does this role belong to?',
+          choices: flattenedArr
+        }
+      ])
+      .then(data => {
+        // send to query to find index of selected role from dept table
+        checkDepartment(data.roleName, data.salary, data.roleId);
+       
+        // getAllDepartments();
+      });
+    }
+  });
+};
+
 
 const newEmployee = () => {
   const employee = new Employee('Ron', 'Weasley', 5, 8);
