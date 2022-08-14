@@ -56,7 +56,7 @@ const startMenu = () => {
         getEmployeeToUpdate();
         break;
       case 'Quit':
-        console.log('add quit fuction');
+        confirmQuit();
         break;
     }
   });
@@ -211,10 +211,30 @@ const newRoleForUpdate = employee => {
   });
 };
 
+const confirmQuit = () => {
+  return inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'quit',
+      message: 'Are you sure you would like to quit the program?'
+    }
+  ])
+  .then(data => {
+    if (data.quit) {
+      // if quit was true then say goodbye
+      console.log('Okay, goodbye!!');
+      return;
+    }
+    else {
+      // else send back to startMenu
+      startMenu();
+    }
+  });
+};
 
 // getAllDepartments();
 // getAllRoles();
-getAllEmployees();
+// getAllEmployees();
 
 // newDepartment();
 // newRole();
@@ -222,4 +242,4 @@ getAllEmployees();
 // getEmployeeToUpdate();
 
 
-// startMenu();
+startMenu();
