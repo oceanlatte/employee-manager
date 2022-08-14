@@ -1,4 +1,5 @@
 const db = require('../db/connection');
+const cTable = require('console.table');
 
 // get all departments
 const getAllDepartments = () => {
