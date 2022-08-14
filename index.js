@@ -234,7 +234,7 @@ const confirmQuit = () => {
 
 // getAllDepartments();
 // getAllRoles();
-// getAllEmployees();
+getAllEmployees();
 
 // newDepartment();
 // newRole();
@@ -242,4 +242,4 @@ const confirmQuit = () => {
 // getEmployeeToUpdate();
 
 
-startMenu();
+// startMenu();
