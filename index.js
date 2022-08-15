@@ -145,7 +145,6 @@ const getManagerList = () => {
       return;
     }
     else {
-      console.log(result, 'MANAGER LIST new');
       // filter result to remove any manager_id that is null, then maps to get only names
       const managerFilter = result
         .filter(i => i[4] !== null)
@@ -157,7 +156,6 @@ const getManagerList = () => {
 };
 
 const newEmployee = (managersNameArr)  => {
-
   // get list of departments for choosing which dept role belongs to
   db.query({sql: `SELECT title FROM role`, rowsAsArray: true}, (err, results) => {
     if (err) {
@@ -216,6 +214,7 @@ const getEmployeeToUpdate = () => {
       console.log(err);
     }
     else {
+      // db query returns array, flatMap array to return only employee names
       const employeeArr = result.flatMap(i => i);
 
       inquirer.prompt([
@@ -241,6 +240,7 @@ const newRoleForUpdate = employee => {
       console.log(err);
     }
     else {
+      // db query returns array, then flatMap to get only names from array
       const rolesArr = results.flatMap(i => i);
 
       inquirer.prompt([
@@ -273,7 +273,6 @@ const confirmQuit = () => {
       return;
     }
     else {
-      // else send back to startMenu
       startMenu();
     }
   });
@@ -288,6 +287,5 @@ const confirmQuit = () => {
 // newRole();
 // newEmployee();
 // getEmployeeToUpdate();
-
 
 startMenu();

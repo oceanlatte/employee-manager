@@ -26,7 +26,6 @@ const getAllRoles = () => {
     }
     else {
       console.table(rows);
-      return rows;
     }
   });
 }

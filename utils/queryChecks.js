@@ -8,7 +8,6 @@ const Employee = require('../lib/Employee');
 
 // find department index that matches selected role
 const checkDepartment = (name, salary, dept, mangRole) => {
-  console.log(mangRole, 'XOVER MANAGEMENT #')
   const query = 
   `SELECT * FROM department WHERE department_name = '${dept}'`;
 
@@ -21,7 +20,6 @@ const checkDepartment = (name, salary, dept, mangRole) => {
       if (deptIdArr[0]) {
         const role = new Role(name, salary, deptIdArr[0], mangRole);
         role.insertToRole();
-        // startMenu();
       }
     }
   });
@@ -67,7 +65,6 @@ const checkEmployeeId = (name, role) => {
 
       if (selectedEmployeeArr[0]) {
         Employee.updateEmployee(role, selectedEmployeeArr[0], name);
-        startMenu();
       }
     }
   });
