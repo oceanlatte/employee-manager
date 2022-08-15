@@ -3,7 +3,7 @@ const db = require('./db/connection');
 
 const Department = require('./lib/Department');
 const { getAllDepartments, getAllEmployees, getAllRoles } = require('./utils/queries');
-const { checkDepartment, checkRole, checkEmployeeId } = require('./utils/queryChecks');
+const { checkDepartment, checkRole } = require('./utils/queryChecks');
 
 
 console.log(
@@ -50,7 +50,8 @@ const startMenu = () => {
         newRole();
         break;
       case 'Add an employee':
-        newEmployee();
+        // send to getManagerList first to get array of managers
+        getManagerList();
         break;
       case 'Update an employee':
         getEmployeeToUpdate();
@@ -104,20 +105,59 @@ const newRole = () => {
           name: 'roleId',
           message: 'What department does this role belong to?',
           choices: deptArr
+        },
+        {
+          type: 'confirm',
+          name: 'managmentRole',
+          message: 'If this a managment position?'
         }
       ])
       .then(data => {
-        // send to  find index of selected role from dept table for Role constructor
-        checkDepartment(data.roleName, data.salary, data.roleId);
-       
+        console.log(data, 'returned data');
+
+        if (data.managmentRole) {
+          // send to  find index of selected role from dept table for Role constructor
+          checkDepartment(data.roleName, data.salary, data.roleId, 1);
+        }
+        else {
+          checkDepartment(data.roleName, data.salary, data.roleId, 0);
+        }
         // startMenu();
       });
     }
   });
 };
 
+const getManagerList = () => {
+  const query = 
+  `SELECT 
+    employee.id, employee.manager_id,
+    CONCAT (employee.first_name, ' ' , employee.last_name) AS manager,
+    role.title,
+    role.managment_role
+  FROM employee
+  LEFT JOIN 
+    role ON employee.role_id = role.id AND role.managment_role;`;
 
-const newEmployee = () => {
+  db.query({sql: query, rowsAsArray: true}, (err, result) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    else {
+      console.log(result, 'MANAGER LIST new');
+      // filter result to remove any manager_id that is null, then maps to get only names
+      const managerFilter = result
+        .filter(i => i[4] !== null)
+        .map(i => i[2]);
+
+      newEmployee(managerFilter);
+    }
+  });
+};
+
+const newEmployee = (managersNameArr)  => {
+
   // get list of departments for choosing which dept role belongs to
   db.query({sql: `SELECT title FROM role`, rowsAsArray: true}, (err, results) => {
     if (err) {
@@ -146,13 +186,20 @@ const newEmployee = () => {
           type: 'list',
           name: 'manager',
           message: 'Who is their manager?',
-          // !!! NEED TO ADD MANAGER
-          choices: [1, 2, 3]
+          choices: managersNameArr
         }
       ])
       .then(data => {
-        // send to checkRole() to find the role index needed for Employee constructor
-        checkRole(data.firstName, data.lastName, data.role);
+        // new query to get the manager from DB that matches name chosen
+        const sql = `SELECT * FROM employee
+        WHERE CONCAT(first_name, ' ', last_name) = '${data.manager}'`;
+        
+        db.query(sql, (err, result) => {
+          // get manager id number from the query to send to the constructor
+          const managerId = result[0].id;
+          // send to checkRole() to find the role index needed for Employee constructor
+          checkRole(data.firstName, data.lastName, data.role, managerId);
+        })
         // startMenu();
       });
     }
@@ -234,7 +281,8 @@ const confirmQuit = () => {
 
 // getAllDepartments();
 // getAllRoles();
-getAllEmployees();
+// getAllEmployees();
+// getManagerList();
 
 // newDepartment();
 // newRole();
@@ -242,4 +290,4 @@ getAllEmployees();
 // getEmployeeToUpdate();
 
 
-// startMenu();
+startMenu();

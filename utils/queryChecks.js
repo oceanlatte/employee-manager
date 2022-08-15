@@ -7,7 +7,8 @@ const Employee = require('../lib/Employee');
 // --------- Check Functions to find Indexes -------------
 
 // find department index that matches selected role
-const checkDepartment = (name, salary, dept) => {
+const checkDepartment = (name, salary, dept, mangRole) => {
+  console.log(mangRole, 'XOVER MANAGEMENT #')
   const query = 
   `SELECT * FROM department WHERE department_name = '${dept}'`;
 
@@ -18,7 +19,7 @@ const checkDepartment = (name, salary, dept) => {
     else {
       const deptIdArr = results.flatMap(index => index);
       if (deptIdArr[0]) {
-        const role = new Role(name, salary, deptIdArr[0]);
+        const role = new Role(name, salary, deptIdArr[0], mangRole);
         role.insertToRole();
         // startMenu();
       }
@@ -26,7 +27,7 @@ const checkDepartment = (name, salary, dept) => {
   });
 }
 
-const checkRole = (first, last, title, manager, fullName) => {
+const checkRole = (first, last, title, managerId, fullName) => {
   const query = 
   `SELECT * FROM role WHERE title = '${title}'`;
 
@@ -37,8 +38,8 @@ const checkRole = (first, last, title, manager, fullName) => {
     else {
       const rolesArr = results.flatMap(i => i);
 
-      if (manager !== null) {
-        const employee = new Employee(first, last, rolesArr[0], manager);
+      if (managerId !== null) {
+        const employee = new Employee(first, last, rolesArr[0], managerId);
         employee.insertToEmployee();
         // startMenu();
       }
@@ -66,11 +67,11 @@ const checkEmployeeId = (name, role) => {
 
       if (selectedEmployeeArr[0]) {
         Employee.updateEmployee(role, selectedEmployeeArr[0], name);
-        // startMenu();
+        startMenu();
       }
     }
   });
-}
+};
 
 module.exports = {
   checkDepartment,
