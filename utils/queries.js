@@ -31,7 +31,6 @@ const getAllRoles = () => {
 }
 
 
-// (X) job titles | (X) departments | (X) salaries | !! () managers name
 const getAllEmployees = () => {
   const sql = 
   `SELECT 

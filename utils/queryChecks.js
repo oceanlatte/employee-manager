@@ -42,7 +42,6 @@ const checkRole = (first, last, title, managerId, fullName) => {
         // startMenu();
       }
       else {
-        console.log(fullName, rolesArr[0], 'else statment info')
         checkEmployeeId(fullName, rolesArr[0]);
       }
     }
@@ -61,7 +60,6 @@ const checkEmployeeId = (name, role) => {
     }
     else {
       const selectedEmployeeArr = results.flatMap(i => i);
-      console.log(selectedEmployeeArr, 'employee array from checkEmployeeId');
 
       if (selectedEmployeeArr[0]) {
         Employee.updateEmployee(role, selectedEmployeeArr[0], name);

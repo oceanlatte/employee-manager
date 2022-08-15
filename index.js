@@ -1,25 +1,26 @@
-const inquirer = require('inquirer');
 const db = require('./db/connection');
+const inquirer = require('inquirer');
+const cTable = require('console.table');
 
 const Department = require('./lib/Department');
-const { getAllDepartments, getAllEmployees, getAllRoles } = require('./utils/queries');
+// const { getAllDepartments, getAllEmployees, getAllRoles } = require('./utils/queries');
 const { checkDepartment, checkRole } = require('./utils/queryChecks');
 
 
 console.log(
   `
-  ============================================
-   Welcome to the Employee Management System!
-  ============================================
+  ===================================================
+      Welcome to the Employee Management System!
+  ===================================================
   `
 );
 
 const startMenu = () => {
-  return inquirer.prompt([
+  inquirer.prompt([
     {
       type: 'list',
       name: 'start',
-      message: 'What would you like to do today?',
+      message: 'What would you like to do?',
       choices: [
         'View all departments',
         'View all roles',
@@ -63,9 +64,21 @@ const startMenu = () => {
   });
 };
 
+const getAllDepartments = () => {
+  db.query(`SELECT * FROM department`, (err, results) => {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      console.table(results);
+      startMenu();
+    }
+  });
+}
+
 // ----ADD NEW: Dept, Role, Employee functions----
 const newDepartment = () => {
-  return inquirer.prompt([
+  inquirer.prompt([
     {
       type: 'input',
       name: 'dept',
@@ -74,11 +87,59 @@ const newDepartment = () => {
   ])
   .then(data => {
     const dept = new Department (data.dept);
+    // spacing for better visibility on command line
+    console.log(`
+        New department ${data.dept} added!
+    `);
     dept.insertToDepartment();
-    // startMenu();
+    startMenu();
   });
 };
 
+// db query to display the DEPT NAME the role belongs to 
+const getAllRoles = () => {
+  const sql = `SELECT role.*, department.department_name
+  FROM role
+  LEFT JOIN department
+  ON role.department_id = department.id`;
+
+  db.query(sql, (err, rows) => {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      console.table(rows);
+      startMenu();
+    }
+  });
+}
+
+
+// (X) job titles | (X) departments | (X) salaries | (X) managers name
+const getAllEmployees = () => {
+  const sql = 
+  `SELECT 
+  employee.id, employee.first_name, employee.last_name, employee.manager_id,
+    role.title, 
+    role.salary, 
+    department.department_name,
+    CONCAT (manager.first_name, ' ' , manager.last_name) AS manager
+  FROM employee 
+  LEFT JOIN 
+    role ON employee.role_id = role.id AND role.salary
+  LEFT JOIN department ON role.department_id = department.id
+  LEFT JOIN employee manager ON employee.manager_id = manager.id;`
+  
+  db.query(sql, (err, rows) => {
+    if (err) {
+      console.log(err)
+    }
+    else {
+      console.table(rows);
+      startMenu();
+    }
+  })
+}; 
 
 const newRole = () => {
   // get list of departments for choosing which dept role belongs to
@@ -113,16 +174,22 @@ const newRole = () => {
         }
       ])
       .then(data => {
-        console.log(data, 'returned data');
-
         if (data.managmentRole) {
           // send to  find index of selected role from dept table for Role constructor
           checkDepartment(data.roleName, data.salary, data.roleId, 1);
+
+          // extra spacing for visibility on command line
+          console.log(`
+      New role ${data.roleName} added!
+          `);
+
+
+          startMenu();
         }
         else {
           checkDepartment(data.roleName, data.salary, data.roleId, 0);
+          startMenu();
         }
-        // startMenu();
       });
     }
   });
@@ -188,17 +255,23 @@ const newEmployee = (managersNameArr)  => {
         }
       ])
       .then(data => {
+        const { firstName, lastName, role, manager } = data;
         // new query to get the manager from DB that matches name chosen
         const sql = `SELECT * FROM employee
-        WHERE CONCAT(first_name, ' ', last_name) = '${data.manager}'`;
+        WHERE CONCAT(first_name, ' ', last_name) = '${manager}'`;
         
         db.query(sql, (err, result) => {
           // get manager id number from the query to send to the constructor
           const managerId = result[0].id;
           // send to checkRole() to find the role index needed for Employee constructor
-          checkRole(data.firstName, data.lastName, data.role, managerId);
-        })
-        // startMenu();
+          checkRole(firstName, lastName, role, managerId);
+
+          console.log(`
+      New employee ${firstName} ${lastName} added!
+          `);
+
+          startMenu();
+        });
       });
     }
   });
@@ -253,6 +326,11 @@ const newRoleForUpdate = employee => {
       ])
       .then(data => {
         checkRole(null, null, data.newRoleName, null, employee);
+        // spacing for better visibility on command line
+        console.log(`
+      ${employee}'s info has been updated.
+        `);
+        startMenu();
       })
     }
   });
@@ -269,7 +347,9 @@ const confirmQuit = () => {
   .then(data => {
     if (data.quit) {
       // if quit was true then say goodbye
-      console.log('Okay, goodbye!!');
+      console.log(`
+        Okay, goodbye!!
+      `);
       return;
     }
     else {
