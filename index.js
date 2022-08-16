@@ -73,7 +73,7 @@ const getAllDepartments = () => {
     }
     else if (results.length == 0) {
       console.log(`
-      Oh no! There are no departments listed yet. Please start there first!
+  Oh no! There are no departments listed yet. Please start there first!
           `);
       startMenu();
     }
@@ -97,7 +97,7 @@ const newDepartment = () => {
     const dept = new Department (data.dept);
     // spacing for better visibility on command line
     console.log(`
-        New department ${data.dept} added!
+  New department ${data.dept} added!
     `);
     dept.insertToDepartment();
     startMenu();
@@ -117,7 +117,7 @@ const getAllRoles = () => {
     }
     else if (rows.length == 0) {
       console.log(`
-      Oops, there are no roles listed yet!
+  Oops, there are no roles listed yet!
           `);
       startMenu();
     }
@@ -129,7 +129,6 @@ const getAllRoles = () => {
 }
 
 
-// (X) job titles | (X) departments | (X) salaries | (X) managers name
 const getAllEmployees = () => {
   const sql = 
   `SELECT 
@@ -150,7 +149,7 @@ const getAllEmployees = () => {
     }
     else if (rows.length === 0) {
       console.log(`
-      Oops, there are no employees listed yet!
+  Oops, there are no employees listed yet!
           `);
       startMenu();
     }
@@ -169,11 +168,12 @@ const newRole = () => {
     }
     else if (results.length === 0) {
       console.log(`
-      Oh no, please add at least one department before adding a role!
+  Oh no, please add at least one department before adding a role!
           `);
       startMenu();
     }
     else {
+      // results populate as array within array. flatMapped to get correct depth
       const deptArr = results.flatMap(index => index);
       
       inquirer.prompt([
@@ -196,7 +196,7 @@ const newRole = () => {
         {
           type: 'confirm',
           name: 'managmentRole',
-          message: 'If this a managment position?'
+          message: 'Is this a managment position?'
         }
       ])
       .then(data => {
@@ -206,7 +206,7 @@ const newRole = () => {
 
           // extra spacing for visibility on command line
           console.log(`
-      New role ${data.roleName} added!
+  New role ${data.roleName} added!
           `);
 
 
@@ -263,7 +263,7 @@ const newEmployee = (managersNameArr)  => {
     }
     else if (results.length === 0) {
       console.log(`
-      Oh no, make sure to add at least one role and one department before adding an employee!
+  Oh no, make sure to add at least one role and one department before adding an employee!
           `);
       startMenu();
     }
@@ -303,7 +303,7 @@ const newEmployee = (managersNameArr)  => {
           checkRole(firstName, lastName, role, manager);
 
           console.log(`
-      New employee ${firstName} ${lastName} added!
+  New employee ${firstName} ${lastName} added!
           `);
 
           startMenu();
@@ -319,7 +319,7 @@ const newEmployee = (managersNameArr)  => {
           checkRole(firstName, lastName, role, managerId);
 
           console.log(`
-      New employee ${firstName} ${lastName} added!
+  New employee ${firstName} ${lastName} added!
           `);
 
           startMenu();
@@ -387,7 +387,7 @@ const newRoleForUpdate = employee => {
         checkRole(null, null, data.newRoleName, null, employee);
         // spacing for better visibility on command line
         console.log(`
-      ${employee}'s info has been updated.
+  ${employee}'s info has been updated.
         `);
         startMenu();
       })
@@ -407,7 +407,7 @@ const confirmQuit = () => {
     if (data.quit) {
       // if quit was true then say goodbye
       console.log(`
-        Okay, goodbye!!
+  Okay, goodbye!!
       `);
       return;
     }
@@ -416,15 +416,5 @@ const confirmQuit = () => {
     }
   });
 };
-
-// getAllDepartments();
-// getAllRoles();
-// getAllEmployees();
-// getManagerList();
-
-// newDepartment();
-// newRole();
-// newEmployee();
-// getEmployeeToUpdate();
 
 startMenu();
