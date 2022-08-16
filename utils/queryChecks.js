@@ -25,6 +25,7 @@ const checkDepartment = (name, salary, dept, mangRole) => {
   });
 }
 
+// select role.title from table in order to grab role ID number
 const checkRole = (first, last, title, managerId, fullName) => {
   const query = 
   `SELECT * FROM role WHERE title = '${title}'`;
@@ -36,11 +37,19 @@ const checkRole = (first, last, title, managerId, fullName) => {
     else {
       const rolesArr = results.flatMap(i => i);
 
+      // if sent to checkRole WITH a manager Id than it is to add new Employee
       if (managerId !== null) {
-        const employee = new Employee(first, last, rolesArr[0], managerId);
-        employee.insertToEmployee();
-        // startMenu();
+        // if manager id was 'None', then send to Employee constructor as null
+        if(managerId === 'None'){
+          const employee = new Employee(first, last, rolesArr[0], null);
+          employee.insertToEmployee();
+        }
+        else {
+          const employee = new Employee(first, last, rolesArr[0], managerId);
+          employee.insertToEmployee();
+        }
       }
+      // if sent WITHOUT manager ID than it was to get employeeID
       else {
         checkEmployeeId(fullName, rolesArr[0]);
       }
@@ -48,7 +57,7 @@ const checkRole = (first, last, title, managerId, fullName) => {
   });
 };
 
-
+// used to get employee ID to update the correct employee info
 const checkEmployeeId = (name, role) => {
   const query = 
   `SELECT * FROM employee

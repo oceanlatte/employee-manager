@@ -12,6 +12,8 @@ console.log(
   ===================================================
       Welcome to the Employee Management System!
   ===================================================
+
+  Please start with adding a deparment first.
   `
 );
 
@@ -69,6 +71,12 @@ const getAllDepartments = () => {
     if (err) {
       console.log(err);
     }
+    else if (results.length == 0) {
+      console.log(`
+      Oh no! There are no departments listed yet. Please start there first!
+          `);
+      startMenu();
+    }
     else {
       console.table(results);
       startMenu();
@@ -107,6 +115,12 @@ const getAllRoles = () => {
     if (err) {
       console.log(err);
     }
+    else if (rows.length == 0) {
+      console.log(`
+      Oops, there are no roles listed yet!
+          `);
+      startMenu();
+    }
     else {
       console.table(rows);
       startMenu();
@@ -134,6 +148,12 @@ const getAllEmployees = () => {
     if (err) {
       console.log(err)
     }
+    else if (rows.length === 0) {
+      console.log(`
+      Oops, there are no employees listed yet!
+          `);
+      startMenu();
+    }
     else {
       console.table(rows);
       startMenu();
@@ -146,6 +166,12 @@ const newRole = () => {
   db.query({sql: `SELECT department_name FROM department`, rowsAsArray: true}, (err, results) => {
     if (err) {
       console.log(err);
+    }
+    else if (results.length === 0) {
+      console.log(`
+      Oh no, please add at least one department before adding a role!
+          `);
+      startMenu();
     }
     else {
       const deptArr = results.flatMap(index => index);
@@ -211,25 +237,40 @@ const getManagerList = () => {
       console.log(err);
       return;
     }
+    // else if (result.length === 0) {
+    //   const noManagers = ['None'];
+    //   newEmployee(noManagers);
+    // }
     else {
       // filter result to remove any manager_id that is null, then maps to get only names
       const managerFilter = result
         .filter(i => i[4] !== null)
         .map(i => i[2]);
 
+        // adding option of no manager to array
+        managerFilter.push('None');
       newEmployee(managerFilter);
     }
   });
 };
 
 const newEmployee = (managersNameArr)  => {
+
   // get list of departments for choosing which dept role belongs to
   db.query({sql: `SELECT title FROM role`, rowsAsArray: true}, (err, results) => {
     if (err) {
       console.log(err);
     }
+    else if (results.length === 0) {
+      console.log(`
+      Oh no, make sure to add at least one role and one department before adding an employee!
+          `);
+      startMenu();
+    }
     else {
-      const flattenedArr = results.flatMap(index => index);
+      const rolesArr = results.flatMap(index => index);
+
+
       inquirer.prompt([
         {
           type: 'input',
@@ -245,18 +286,29 @@ const newEmployee = (managersNameArr)  => {
           type: 'list',
           name: 'role',
           message: 'What is their role?',
-          choices: flattenedArr
+          choices: rolesArr // roles gotten from db query above
         },
         {
           type: 'list',
           name: 'manager',
           message: 'Who is their manager?',
-          choices: managersNameArr
+          choices: managersNameArr // array passed from managerList function
         }
       ])
       .then(data => {
         const { firstName, lastName, role, manager } = data;
         // new query to get the manager from DB that matches name chosen
+
+        if (manager === 'None') {
+          checkRole(firstName, lastName, role, manager);
+
+          console.log(`
+      New employee ${firstName} ${lastName} added!
+          `);
+
+          startMenu();
+        }
+        else {
         const sql = `SELECT * FROM employee
         WHERE CONCAT(first_name, ' ', last_name) = '${manager}'`;
         
@@ -272,6 +324,7 @@ const newEmployee = (managersNameArr)  => {
 
           startMenu();
         });
+      }
       });
     }
   });
@@ -285,6 +338,12 @@ const getEmployeeToUpdate = () => {
   db.query({sql: query, rowsAsArray: true}, (err, result) => {
     if (err) {
       console.log(err);
+    }
+    else if (result.length === 0) {
+      console.log(`
+      Ope, no employees found to update.
+          `);
+      startMenu();
     }
     else {
       // db query returns array, flatMap array to return only employee names
